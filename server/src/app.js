@@ -30,19 +30,40 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Middleware
-// FRONTEND_URL may hold several comma-separated origins (e.g. production + a preview URL)
+// FRONTEND_URL may hold several comma-separated origins (e.g. production plus a preview URL).
+// Entries may use * as a wildcard, e.g. https://*.vercel.app
+const stripTrailingSlash = (value) => value.replace(/\/+$/, '');
+
 const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
   .split(',')
-  .map((origin) => origin.trim())
+  .map((origin) => stripTrailingSlash(origin.trim()))
   .filter(Boolean);
+
+const isAllowedOrigin = (origin) =>
+  allowedOrigins.some((allowed) => {
+    if (allowed === origin) return true;
+    if (!allowed.includes('*')) return false;
+
+    const pattern = allowed
+      .split('*')
+      .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('.*');
+    return new RegExp(`^${pattern}$`).test(origin);
+  });
 
 app.use(cors({
   origin: (origin, callback) => {
     // Requests without an Origin header (curl, server-to-server, Vercel Cron) are allowed
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || isAllowedOrigin(stripTrailingSlash(origin))) {
       return callback(null, true);
     }
-    return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+
+    // Answer without CORS headers rather than throwing: throwing here turns every
+    // cross-origin request into a 500 (and leaks a stack trace), which hides the real cause.
+    console.warn(
+      `CORS: blocked origin ${origin}. Allowed: ${allowedOrigins.join(', ')}. Set FRONTEND_URL to fix.`
+    );
+    return callback(null, false);
   },
   credentials: true,
 }));
