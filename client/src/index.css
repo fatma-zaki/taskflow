@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Global base styles only.
+ *
+ * Component appearance lives in `src/shared/components` and the tokens in
+ * `src/shared/theme/tokens.js` — nothing visual should be added here.
+ */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* Never bounce the document: individual screens own their scrolling. */
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    @apply bg-app text-ink font-sans text-body antialiased;
+    /* Disable the grey flash iOS paints over every tapped element. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Native-feeling momentum scrolling inside scroll containers. */
+  [data-scroll-area] {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  button,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-app;
+  }
+}
+
+@layer utilities {
+  /* Safe areas — notch and home indicator. */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .top-safe {
+    top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Reserve room for the fixed bottom navigation plus the home indicator. */
+  .pb-nav-safe {
+    padding-bottom: calc(theme('spacing.nav') + env(safe-area-inset-bottom, 0px));
+  }
+
+  .bottom-nav-safe {
+    bottom: calc(theme('spacing.nav') + env(safe-area-inset-bottom, 0px));
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Tap feedback: a quick, subtle scale on press. */
+  .press {
+    @apply transition-transform duration-instant ease-out active:scale-[0.97];
+  }
+
+  .press-sm {
+    @apply transition-transform duration-instant ease-out active:scale-[0.99];
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
