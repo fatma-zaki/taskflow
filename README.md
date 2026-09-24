@@ -13,7 +13,8 @@ A production-ready MERN stack web application for managing company tasks, assign
 - **Task Filtering & Search**: Filter tasks by status, priority, assignee, and search by title/description
 - **CSV Export**: Export tasks to CSV for reporting
 - **Admin Panel**: User management and system configuration
-- **Responsive Design**: Mobile-friendly UI built with Tailwind CSS
+- **Two interfaces, one codebase**: a phone app (bottom navigation, sheets, swipe-to-complete) below
+  1024px and a web app (sidebar, tables, modals) at or above it — same URLs, same data layer
 
 ## 🛠 Technology Stack
 
@@ -184,16 +185,49 @@ TaskFlow/
 │   └── package.json
 ├── client/
 │   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── context/        # Auth context
-│   │   ├── services/       # API services
-│   │   ├── App.jsx
+│   │   ├── app/            # Composition root
+│   │   │   ├── navigation/ # Route table, layouts, sidebar & bottom nav
+│   │   │   ├── platform/   # Viewport → phone or web
+│   │   │   ├── providers/  # Store, query client, toasts
+│   │   │   └── store/      # Redux store (session only)
+│   │   ├── features/       # One folder per domain, see below
+│   │   ├── services/api/   # Axios client + endpoints + query keys
+│   │   ├── shared/         # Design system, theme tokens, utils, types
 │   │   └── main.jsx
 │   └── package.json
 ├── docker-compose.yml
 └── README.md
 ```
+
+## 🧱 Frontend Architecture
+
+The client ships **one app with two interfaces**. Which one renders is decided solely by viewport
+width (`1024px`, defined once in `shared/theme/tokens.js`), so a link opens the right interface
+wherever it is pasted and resizing the window switches live.
+
+```
+src/features/<domain>/
+├── components/      # Presentational pieces (components/web/ for web-only ones)
+├── constants/       # Enums, labels, copy
+├── hooks/           # React Query hooks + flow hooks (create, edit, detail…)
+├── screens/         # Phone screens
+│   └── web/         # Web pages
+├── services/        # Pure business rules — no React, no network
+└── index.js         # The feature's public surface; cross-feature imports use this
+```
+
+**Rules that keep the two interfaces in step**
+
+- Routes are data: [`app/navigation/routeTable.jsx`](client/src/app/navigation/routeTable.jsx) lists
+  `{ path, mobile, desktop, mobileLayout }`. Adding a screen is one entry.
+- Business logic lives in `features/*/services/*` as pure functions (`taskRules`, `taskSegments`,
+  `userRules`) — testable without rendering anything.
+- Shared behaviour lives in hooks (`useTaskFilters`, `useTaskDetail`, `useCreateTaskFlow`,
+  `useLoginForm`), so a screen and its page differ only in markup.
+- Every colour, radius, type step and shadow comes from `shared/theme/tokens.js`, which
+  `tailwind.config.js` imports. Nothing hardcodes a hex value.
+- Overlays use `Dialog`, which renders a bottom sheet on phones and a centred modal on the web.
+- Data access is confined to `services/api/`; no component imports axios or knows a URL.
 
 ## 🔐 API Endpoints
 

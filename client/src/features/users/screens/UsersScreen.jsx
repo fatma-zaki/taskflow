@@ -14,31 +14,24 @@ import {
 } from '@/shared/components';
 import { useDisclosure } from '@/shared/hooks';
 import { entityId } from '@/shared/utils/entity.js';
+import { ROLE_LABELS, ROLE_TONES } from '@/shared/constants/roles.js';
+import { useCurrentUser } from '@/features/auth';
 import { useUsers } from '../hooks/useUsers.js';
-import CreateUserSheet from '../components/CreateUserSheet.jsx';
-
-/** @type {Record<import('@/shared/types').UserRole, { label: string, tone: import('@/shared/theme/tones.js').Tone }>} */
-const ROLE_BADGE = {
-  admin: { label: 'Admin', tone: 'primary' },
-  manager: { label: 'Manager', tone: 'info' },
-  user: { label: 'Member', tone: 'neutral' },
-};
+import { canEditUser, filterUsers } from '../services/userRules.js';
+import CreateUserDialog from '../components/CreateUserDialog.jsx';
 
 /**
- * Team list for managers and admins.
+ * Team list on a phone. Same permission rules as the web page — they live in
+ * `userRules`, not in either screen.
  */
 export default function UsersScreen() {
+  const { user: currentUser, isAdmin, isManager } = useCurrentUser();
   const [search, setSearch] = useState('');
-  const createSheet = useDisclosure();
+  const createDialog = useDisclosure();
   const { users, isLoading } = useUsers();
 
-  const visible = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return users;
-    return users.filter(
-      (user) => user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term),
-    );
-  }, [users, search]);
+  const actor = { current: currentUser, isAdmin, isManager };
+  const visible = useMemo(() => filterUsers(users, { search }), [users, search]);
 
   return (
     <>
@@ -58,8 +51,8 @@ export default function UsersScreen() {
           ) : (
             <RowGroup>
               {visible.map((user) => {
-                const badge = ROLE_BADGE[user.role];
                 const id = entityId(user) ?? '';
+                const editable = canEditUser(user, actor);
 
                 return (
                   <ListRow
@@ -67,8 +60,9 @@ export default function UsersScreen() {
                     label={user.name}
                     description={user.email}
                     leading={<Avatar name={user.name} size="sm" />}
-                    value={<Badge tone={badge.tone}>{badge.label}</Badge>}
-                    to={routeTo.userEdit(id)}
+                    value={<Badge tone={ROLE_TONES[user.role]}>{ROLE_LABELS[user.role]}</Badge>}
+                    to={editable ? routeTo.userEdit(id) : undefined}
+                    chevron={editable}
                   />
                 );
               })}
@@ -77,8 +71,12 @@ export default function UsersScreen() {
         </div>
       </Screen>
 
-      <Fab label="Add a team member" onClick={createSheet.show} />
-      <CreateUserSheet open={createSheet.open} onClose={createSheet.hide} />
+      {isAdmin ? (
+        <>
+          <Fab label="Add a team member" onClick={createDialog.show} />
+          <CreateUserDialog open={createDialog.open} onClose={createDialog.hide} />
+        </>
+      ) : null}
     </>
   );
 }

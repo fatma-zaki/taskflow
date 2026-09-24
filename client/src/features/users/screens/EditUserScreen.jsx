@@ -5,7 +5,7 @@ import {
   Avatar,
   Button,
   Card,
-  ConfirmSheet,
+  ConfirmDialog,
   ListRow,
   RowGroup,
   Screen,
@@ -54,7 +54,7 @@ export default function EditUserScreen() {
 function EditUserForm({ user }) {
   const navigate = useNavigate();
   const { isAdmin } = useCurrentUser();
-  const deleteSheet = useDisclosure();
+  const deleteDialog = useDisclosure();
   const id = entityId(user) ?? '';
 
   const [values, setValues] = useState({ name: user.name, email: user.email, active: user.active ?? true });
@@ -118,7 +118,7 @@ function EditUserForm({ user }) {
         <div className="mt-5 flex justify-center">
           <button
             type="button"
-            onClick={deleteSheet.show}
+            onClick={deleteDialog.show}
             className="press min-h-touch px-4 text-sub font-semibold text-danger"
           >
             Remove from team
@@ -126,9 +126,9 @@ function EditUserForm({ user }) {
         </div>
       ) : null}
 
-      <ConfirmSheet
-        open={deleteSheet.open}
-        onClose={deleteSheet.hide}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={deleteDialog.hide}
         onConfirm={() => removeUser(id)}
         title={`Remove ${values.name}?`}
         message="They will lose access to TaskFlow."

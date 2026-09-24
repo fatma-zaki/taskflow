@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/shared/utils/cn.js';
+import { useDismissable } from '@/shared/hooks/useDismissable.js';
 
 /**
- * A modal sheet that rises from the bottom — the mobile stand-in for a dialog.
- * Pickers, confirmations and detail actions all use it.
+ * A modal sheet that rises from the bottom — the phone presentation of a
+ * dialog. Use `Dialog` rather than this directly, so the web app gets a
+ * centred window instead.
  *
  * @param {Object} props
  * @param {boolean} props.open
@@ -14,22 +15,7 @@ import { cn } from '@/shared/utils/cn.js';
  * @param {string} [props.className]
  */
 export default function BottomSheet({ open, onClose, children, title, className }) {
-  useEffect(() => {
-    if (!open) return undefined;
-
-    /** @param {KeyboardEvent} event */
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [open, onClose]);
+  useDismissable({ open, onClose });
 
   if (!open) return null;
 

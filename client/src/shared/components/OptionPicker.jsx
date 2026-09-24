@@ -1,10 +1,10 @@
 import { Check } from 'lucide-react';
 import { cn } from '@/shared/utils/cn.js';
-import BottomSheet from './BottomSheet.jsx';
+import Dialog from './Dialog.jsx';
 
 /**
  * @template {string} T
- * @typedef {Object} SheetOption
+ * @typedef {Object} PickerOption
  * @property {T} value
  * @property {string} label
  * @property {string} [description]
@@ -12,22 +12,22 @@ import BottomSheet from './BottomSheet.jsx';
  */
 
 /**
- * Single-select list inside a bottom sheet — the mobile replacement for a
- * `<select>`. Used for priority, assignee and any future enum field.
+ * Single-select list in a dialog — the touch-friendly replacement for a
+ * `<select>`, used for priority, assignee and any other enum field.
  *
  * @template {string} T
  * @param {Object} props
  * @param {boolean} props.open
  * @param {() => void} props.onClose
  * @param {string} props.title
- * @param {SheetOption<T>[]} props.options
+ * @param {PickerOption<T>[]} props.options
  * @param {T | undefined} props.value
  * @param {(value: T) => void} props.onSelect
  */
-export default function OptionSheet({ open, onClose, title, options, value, onSelect }) {
+export default function OptionPicker({ open, onClose, title, options, value, onSelect }) {
   return (
-    <BottomSheet open={open} onClose={onClose} title={title}>
-      <ul className="px-2 pt-2">
+    <Dialog open={open} onClose={onClose} title={title} size="sm">
+      <ul className="px-2 pt-2 desktop:px-0 desktop:pt-0">
         {options.map((option) => {
           const selected = option.value === value;
           return (
@@ -40,7 +40,7 @@ export default function OptionSheet({ open, onClose, title, options, value, onSe
                 }}
                 className={cn(
                   'press-sm flex min-h-touch w-full items-center gap-3 rounded-md px-3 py-3 text-left',
-                  'transition-colors duration-fast active:bg-surface-muted',
+                  'transition-colors duration-fast hover:bg-surface-muted active:bg-surface-muted',
                   selected && 'bg-primary-tint',
                 )}
               >
@@ -57,6 +57,6 @@ export default function OptionSheet({ open, onClose, title, options, value, onSe
           );
         })}
       </ul>
-    </BottomSheet>
+    </Dialog>
   );
 }

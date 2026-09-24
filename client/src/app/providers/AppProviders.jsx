@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { registerUnauthorizedHandler } from '@/services/api';
 import { initAuth, logout } from '@/features/auth';
+import { PlatformProvider } from '../platform/PlatformProvider.jsx';
 import { store } from '../store/index.js';
 import { queryClient } from './queryClient.js';
 import { toastOptions } from './toastOptions.js';
@@ -29,10 +30,12 @@ export default function AppProviders({ children }) {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          {children}
-          <Toaster {...toastOptions} />
-        </BrowserRouter>
+        <PlatformProvider>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            {children}
+            <Toaster {...toastOptions} />
+          </BrowserRouter>
+        </PlatformProvider>
       </QueryClientProvider>
     </Provider>
   );

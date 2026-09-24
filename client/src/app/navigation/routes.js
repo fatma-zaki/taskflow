@@ -26,10 +26,13 @@ export const ROUTE_PATTERNS = Object.freeze({
   userEdit: '/admin/users/:id/edit',
 });
 
-/** Query parameters understood by the Tasks screen. */
+/** Query parameters understood by the Tasks screen and page. */
 export const TASK_QUERY_PARAM = Object.freeze({
+  search: 'q',
   segment: 'segment',
   filter: 'filter',
+  status: 'status',
+  priority: 'priority',
   date: 'date',
 });
 
@@ -45,4 +48,6 @@ export const routeTo = Object.freeze({
   tasksInSegment: (segmentId) => `${ROUTES.tasks}?${TASK_QUERY_PARAM.segment}=${segmentId}`,
   /** @param {string} isoDate `yyyy-MM-dd` */
   tasksOnDate: (isoDate) => `${ROUTES.tasks}?${TASK_QUERY_PARAM.date}=${isoDate}`,
+  /** @param {string} term */
+  tasksSearch: (term) => `${ROUTES.tasks}?${TASK_QUERY_PARAM.search}=${encodeURIComponent(term)}`,
 });

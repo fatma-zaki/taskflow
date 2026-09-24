@@ -4,6 +4,7 @@ import {
   fontSize,
   fontFamily,
   boxShadow,
+  breakpoints,
   layout,
   spacing,
   touchTarget,
@@ -37,8 +38,13 @@ export default {
       fontFamily,
       fontSize,
       boxShadow,
+      screens: {
+        // The one breakpoint that separates the phone screens from the web app.
+        desktop: breakpoints.desktop,
+      },
       maxWidth: {
         app: layout.maxWidth,
+        content: layout.contentMaxWidth,
       },
       spacing: {
         screen: spacing.screen,

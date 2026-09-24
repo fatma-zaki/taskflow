@@ -1,16 +1,14 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { useParams } from 'react-router-dom';
 import { CalendarDays, PenLine, PlayCircle, Trash2, UserRound } from 'lucide-react';
 import { ROUTES, routeTo } from '@/app/navigation/routes.js';
-import { tasksApi } from '@/services/api';
 import {
   Button,
   Card,
-  ConfirmSheet,
+  ConfirmDialog,
   FilePickerRow,
   IconButton,
-  OptionSheet,
+  OptionPicker,
   Screen,
   ScreenHeader,
   Section,
@@ -18,43 +16,26 @@ import {
 } from '@/shared/components';
 import { useDisclosure } from '@/shared/hooks';
 import { formatFullDate, formatTime } from '@/shared/utils/date.js';
-import { downloadBlob } from '@/shared/utils/file.js';
 import { populated } from '@/shared/utils/entity.js';
-import { useCurrentUser } from '@/features/auth';
-import { STATUS_META } from '../constants/taskMeta.js';
+import { SELECTABLE_STATUSES, STATUS_META } from '../constants/taskMeta.js';
 import { taskCopy } from '../constants/taskCopy.js';
-import { canDeleteTask, canUpdateTask } from '../services/taskRules.js';
-import { useTask } from '../hooks/useTask.js';
-import {
-  useDeleteAttachment,
-  useDeleteTask,
-  useSetTaskStatus,
-  useUploadAttachment,
-} from '../hooks/useTaskMutations.js';
+import { useTaskDetail } from '../hooks/useTaskDetail.js';
 import { PriorityBadge, StatusBadge } from '../components/TaskBadges.jsx';
 import AttachmentList from '../components/AttachmentList.jsx';
 
-/** Statuses a person can move a task to by hand. */
-const SELECTABLE_STATUSES = /** @type {const} */ (['upcoming', 'in_progress', 'completed']);
-
 /**
- * Task detail: the full record, its attachments, and the actions allowed for
- * the signed-in role.
+ * Task detail on a phone: the record, its attachments, and the actions the
+ * signed-in role is allowed. Behaviour comes from `useTaskDetail`, which the
+ * web page shares.
  */
 export default function TaskDetailScreen() {
   const { id = '' } = useParams();
-  const navigate = useNavigate();
-  const { user, isAdmin, isManager } = useCurrentUser();
-  const { task, attachments, isLoading, error } = useTask(id);
+  const detail = useTaskDetail(id);
+  const { task, attachments, isLoading, error, canEdit, canRemove } = detail;
 
-  const statusSheet = useDisclosure();
-  const deleteSheet = useDisclosure();
+  const statusPicker = useDisclosure();
+  const deleteDialog = useDisclosure();
   const [pendingFile, setPendingFile] = useState(/** @type {File | null} */ (null));
-
-  const { setStatus } = useSetTaskStatus();
-  const { upload, isPending: isUploading } = useUploadAttachment();
-  const { removeAttachment } = useDeleteAttachment();
-  const { remove } = useDeleteTask({ onDeleted: () => navigate(ROUTES.tasks, { replace: true }) });
 
   if (isLoading) {
     return (
@@ -77,20 +58,8 @@ export default function TaskDetailScreen() {
     );
   }
 
-  const canEdit = canUpdateTask(task, { user, isManager });
-  const canRemove = canDeleteTask(task, { user, isAdmin });
   const assignee = populated(task.assignee_id);
   const reporter = populated(task.reporter_id);
-
-  /** @param {import('@/shared/types').Attachment} attachment */
-  const handleDownload = async (attachment) => {
-    try {
-      const blob = await tasksApi.downloadAttachment(task._id, attachment._id);
-      downloadBlob(blob, attachment.originalname);
-    } catch {
-      toast.error(taskCopy.feedback.downloadFailed);
-    }
-  };
 
   return (
     <Screen
@@ -107,7 +76,7 @@ export default function TaskDetailScreen() {
                 </IconButton>
               ) : null}
               {canRemove ? (
-                <IconButton label="Delete task" onClick={deleteSheet.show} className="text-danger">
+                <IconButton label="Delete task" onClick={deleteDialog.show} className="text-danger">
                   <Trash2 size={20} />
                 </IconButton>
               ) : null}
@@ -128,14 +97,22 @@ export default function TaskDetailScreen() {
       ) : null}
 
       <Card padding="none" className="mt-5 divide-y divide-line">
-        <DetailRow icon={<PlayCircle size={18} />} label="Starts" value={`${formatFullDate(task.start_date)} · ${formatTime(task.start_date)}`} />
-        <DetailRow icon={<CalendarDays size={18} />} label="Due" value={`${formatFullDate(task.end_date)} · ${formatTime(task.end_date)}`} />
+        <DetailRow
+          icon={<PlayCircle size={18} />}
+          label="Starts"
+          value={`${formatFullDate(task.start_date)} · ${formatTime(task.start_date)}`}
+        />
+        <DetailRow
+          icon={<CalendarDays size={18} />}
+          label="Due"
+          value={`${formatFullDate(task.end_date)} · ${formatTime(task.end_date)}`}
+        />
         <DetailRow icon={<UserRound size={18} />} label="Assigned to" value={assignee?.name ?? 'Unassigned'} />
         <DetailRow icon={<UserRound size={18} />} label="Created by" value={reporter?.name ?? '—'} />
       </Card>
 
       {canEdit ? (
-        <Button variant="secondary" fullWidth className="mt-3" onClick={statusSheet.show}>
+        <Button variant="secondary" fullWidth className="mt-3" onClick={statusPicker.show}>
           Change status
         </Button>
       ) : null}
@@ -143,8 +120,8 @@ export default function TaskDetailScreen() {
       <Section title="Attachments" className="mt-7">
         <AttachmentList
           attachments={attachments}
-          onDownload={handleDownload}
-          onDelete={canEdit ? (attachment) => removeAttachment({ taskId: task._id, attachmentId: attachment._id }) : undefined}
+          onDownload={detail.downloadFile}
+          onDelete={canEdit ? detail.removeFile : undefined}
         />
 
         {canEdit ? (
@@ -160,9 +137,9 @@ export default function TaskDetailScreen() {
                 <Button
                   fullWidth
                   size="md"
-                  loading={isUploading}
+                  loading={detail.isUploading}
                   onClick={() => {
-                    upload({ taskId: task._id, file: pendingFile });
+                    detail.uploadFile(pendingFile);
                     setPendingFile(null);
                   }}
                 >
@@ -174,19 +151,19 @@ export default function TaskDetailScreen() {
         ) : null}
       </Section>
 
-      <OptionSheet
-        open={statusSheet.open}
-        onClose={statusSheet.hide}
+      <OptionPicker
+        open={statusPicker.open}
+        onClose={statusPicker.hide}
         title="Status"
         options={SELECTABLE_STATUSES.map((status) => ({ value: status, label: STATUS_META[status].label }))}
         value={task.status}
-        onSelect={(status) => setStatus({ id: task._id, status })}
+        onSelect={detail.setStatus}
       />
 
-      <ConfirmSheet
-        open={deleteSheet.open}
-        onClose={deleteSheet.hide}
-        onConfirm={() => remove(task._id)}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={deleteDialog.hide}
+        onConfirm={detail.deleteTask}
         title="Delete this task?"
         message="This cannot be undone."
         confirmLabel="Delete task"

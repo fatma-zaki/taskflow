@@ -67,6 +67,7 @@ export const radius = {
  * [fontSize, { lineHeight, letterSpacing, fontWeight }]
  */
 export const fontSize = {
+  hero: ['40px', { lineHeight: '46px', letterSpacing: '-0.025em', fontWeight: '700' }],
   display: ['26px', { lineHeight: '32px', letterSpacing: '-0.02em', fontWeight: '700' }],
   title: ['22px', { lineHeight: '28px', letterSpacing: '-0.015em', fontWeight: '700' }],
   section: ['17px', { lineHeight: '24px', letterSpacing: '-0.01em', fontWeight: '600' }],
@@ -86,19 +87,35 @@ export const boxShadow = {
   none: 'none',
 };
 
+/**
+ * The single breakpoint that decides which interface renders: below it the
+ * phone screens, at or above it the web app.
+ */
+export const breakpoints = {
+  desktop: '1024px',
+};
+
 /** Layout constants shared by the shell, screens and fixed elements. */
 export const layout = {
-  /** Reference viewport from the design: 390 × 844, capped at 430px. */
+  /** Reference viewport from the mobile design: 390 × 844, capped at 430px. */
   maxWidth: '430px',
   screenPadding: '20px',
   bottomNavHeight: '68px',
   headerHeight: '56px',
+  /** Web app chrome. */
+  sidebarWidth: '256px',
+  topbarHeight: '68px',
+  contentMaxWidth: '1280px',
+  pagePadding: '32px',
 };
 
 export const spacing = {
   screen: layout.screenPadding,
   nav: layout.bottomNavHeight,
   header: layout.headerHeight,
+  sidebar: layout.sidebarWidth,
+  topbar: layout.topbarHeight,
+  page: layout.pagePadding,
 };
 
 /** Minimum comfortable tap target (Apple HIG / Material both land near 44px). */
@@ -124,6 +141,7 @@ export const tokens = {
   fontSize,
   fontFamily,
   boxShadow,
+  breakpoints,
   layout,
   spacing,
   touchTarget,

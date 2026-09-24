@@ -6,10 +6,11 @@ import { Avatar, ListRow, RowGroup } from '@/shared/components';
  * @param {Object} props
  * @param {import('@/shared/types').User | null} props.user
  * @param {string} props.to
+ * @param {string} [props.className]
  */
-export default function ProfileSummary({ user, to }) {
+export default function ProfileSummary({ user, to, className }) {
   return (
-    <RowGroup>
+    <RowGroup className={className}>
       <ListRow
         label={user?.name ?? 'Your account'}
         description={user?.email}

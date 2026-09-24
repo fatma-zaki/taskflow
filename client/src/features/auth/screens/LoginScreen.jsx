@@ -1,54 +1,28 @@
-import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AtSign, Lock } from 'lucide-react';
 import { ROUTES } from '@/app/navigation/routes.js';
 import { BrandLogo, Button, Card, Screen, TextField } from '@/shared/components';
-import { useAppDispatch, useAppSelector } from '@/app/store/hooks.js';
-import { isValid, validateEmail, validateRequired } from '@/shared/utils/validation.js';
-import { clearError, login, selectAuthError, selectAuthLoading, selectUser } from '../store/authSlice.js';
+import { useAppSelector } from '@/app/store/hooks.js';
+import { selectUser } from '../store/authSlice.js';
+import { useLoginForm } from '../hooks/useLoginForm.js';
 
 /**
- * Sign in. Same mobile language as the rest of the app: one card, big targets,
- * a single primary action.
+ * Sign in on a phone: one card, big targets, a single primary action.
  */
 export default function LoginScreen() {
-  const dispatch = useAppDispatch();
   const location = useLocation();
   const user = useAppSelector(selectUser);
-  const loading = useAppSelector(selectAuthLoading);
-  const serverError = useAppSelector(selectAuthError);
-
-  const [values, setValues] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState(
-    /** @type {{ email: string | null, password: string | null }} */ ({ email: null, password: null }),
-  );
-
-  useEffect(() => () => { dispatch(clearError()); }, [dispatch]);
+  const { values, errors, setField, submit, isSubmitting, serverError } = useLoginForm();
 
   if (user) {
     const from = /** @type {{ from?: string } | null} */ (location.state)?.from;
     return <Navigate to={from ?? ROUTES.home} replace />;
   }
 
-  /** @param {'email' | 'password'} field @param {string} value */
-  const setField = (field, value) => {
-    setValues((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: null }));
-  };
-
-  const submit = () => {
-    const nextErrors = {
-      email: validateEmail(values.email),
-      password: validateRequired(values.password, 'Password'),
-    };
-    setErrors(nextErrors);
-    if (isValid(nextErrors)) dispatch(login(values));
-  };
-
   return (
     <Screen
       footer={
-        <Button fullWidth onClick={submit} loading={loading}>
+        <Button fullWidth onClick={submit} loading={isSubmitting}>
           Sign in
         </Button>
       }

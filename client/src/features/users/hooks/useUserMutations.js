@@ -74,10 +74,10 @@ export function useDeleteUser(options = {}) {
     mutationFn: (id) => usersApi.remove(id),
     onSuccess: () => {
       invalidate();
-      toast.success('Team member removed');
+      toast.success('Team member deactivated');
       options.onDeleted?.();
     },
-    onError: (error) => toast.error(apiErrorMessage(error, 'Could not remove this person')),
+    onError: (error) => toast.error(apiErrorMessage(error, 'Could not deactivate this person')),
   });
 
   return { removeUser: mutation.mutate };

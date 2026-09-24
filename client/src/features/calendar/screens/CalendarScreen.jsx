@@ -2,7 +2,8 @@ import { CalendarCheck, ListChecks, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES, routeTo } from '@/app/navigation/routes.js';
 import {
-  BottomSheet,
+  Card,
+  Dialog,
   IconButton,
   ListRow,
   Screen,
@@ -44,9 +45,9 @@ export default function CalendarScreen() {
         <MonthNavigator month={month} onShift={shiftBy} />
       </div>
 
-      <div className="mt-3">
+      <Card padding="sm" className="mt-3">
         <MonthGrid month={month} selected={selected} tasksByDay={tasksByDay} onSelect={selectDate} />
-      </div>
+      </Card>
 
       <Section
         title={formatDayHeading(selected)}
@@ -68,7 +69,7 @@ export default function CalendarScreen() {
         )}
       </Section>
 
-      <BottomSheet open={menu.open} onClose={menu.hide} title="Calendar">
+      <Dialog open={menu.open} onClose={menu.hide} title="Calendar">
         <div className="px-2 pt-2">
           <ListRow
             label="Jump to today"
@@ -89,7 +90,7 @@ export default function CalendarScreen() {
             }}
           />
         </div>
-      </BottomSheet>
+      </Dialog>
     </Screen>
   );
 }

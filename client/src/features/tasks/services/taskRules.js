@@ -111,6 +111,51 @@ export function matchesSearch(task, query) {
 }
 
 /**
+ * @param {Task} task
+ * @param {TaskStatus | '' | undefined} status
+ * @returns {boolean}
+ */
+export const matchesStatus = (task, status) => !status || task.status === status;
+
+/**
+ * @param {Task} task
+ * @param {import('@/shared/types').TaskPriority | '' | undefined} priority
+ * @returns {boolean}
+ */
+export const matchesPriority = (task, priority) => !priority || task.priority === priority;
+
+/**
+ * Everything a task list can be narrowed by. The phone screens use the chips
+ * and search; the web app adds the status and priority selects. Both run the
+ * same function below.
+ *
+ * @typedef {Object} TaskCriteria
+ * @property {string} [search]
+ * @property {TaskFilterId} [filter]
+ * @property {TaskStatus | ''} [status]
+ * @property {import('@/shared/types').TaskPriority | ''} [priority]
+ * @property {string | null} [date] `yyyy-MM-dd`; keeps only tasks due that day.
+ */
+
+/**
+ * @param {Task[]} tasks
+ * @param {TaskCriteria} criteria
+ * @returns {Task[]}
+ */
+export function applyTaskCriteria(tasks, criteria) {
+  const { search = '', filter = 'all', status = '', priority = '', date = null } = criteria;
+
+  return tasks.filter(
+    (task) =>
+      matchesFilter(task, filter) &&
+      matchesSearch(task, search) &&
+      matchesStatus(task, status) &&
+      matchesPriority(task, priority) &&
+      (!date || isSameCalendarDay(task.end_date, date)),
+  );
+}
+
+/**
  * @param {Task[]} tasks
  * @returns {Task[]} a new array ordered by due date, soonest first.
  */

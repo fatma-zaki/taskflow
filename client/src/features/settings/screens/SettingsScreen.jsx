@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Bell, Globe, HelpCircle, Info, LogOut, Sun } from 'lucide-react';
 import { ROUTES } from '@/app/navigation/routes.js';
-import { ConfirmSheet, IconBadge, ListRow, RowGroup, Screen, ScreenHeader } from '@/shared/components';
+import { ConfirmDialog, IconBadge, ListRow, RowGroup, Screen, ScreenHeader } from '@/shared/components';
 import { useDisclosure } from '@/shared/hooks';
 import { useAppDispatch } from '@/app/store/hooks.js';
 import { logout, useCurrentUser } from '@/features/auth';
@@ -16,7 +16,7 @@ export default function SettingsScreen() {
   const { user } = useCurrentUser();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const logoutSheet = useDisclosure();
+  const logoutDialog = useDisclosure();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -71,13 +71,13 @@ export default function SettingsScreen() {
           intent="danger"
           chevron={false}
           leading={<IconBadge icon={<LogOut />} tone="danger" />}
-          onClick={logoutSheet.show}
+          onClick={logoutDialog.show}
         />
       </RowGroup>
 
-      <ConfirmSheet
-        open={logoutSheet.open}
-        onClose={logoutSheet.hide}
+      <ConfirmDialog
+        open={logoutDialog.open}
+        onClose={logoutDialog.hide}
         onConfirm={handleLogout}
         title="Log out of TaskFlow?"
         message="You'll need to sign in again to see your tasks."

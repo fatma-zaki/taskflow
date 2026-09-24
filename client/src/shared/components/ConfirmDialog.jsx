@@ -1,9 +1,9 @@
 import Button from './Button.jsx';
-import BottomSheet from './BottomSheet.jsx';
+import Dialog from './Dialog.jsx';
 
 /**
- * Destructive-action confirmation, presented as a sheet so it stays reachable
- * with one thumb.
+ * Confirmation for a destructive action — a sheet within thumb reach on
+ * phones, a small centred window on the web.
  *
  * @param {Object} props
  * @param {boolean} props.open
@@ -14,7 +14,7 @@ import BottomSheet from './BottomSheet.jsx';
  * @param {string} [props.confirmLabel]
  * @param {string} [props.cancelLabel]
  */
-export default function ConfirmSheet({
+export default function ConfirmDialog({
   open,
   onClose,
   onConfirm,
@@ -24,10 +24,10 @@ export default function ConfirmSheet({
   cancelLabel = 'Cancel',
 }) {
   return (
-    <BottomSheet open={open} onClose={onClose} title={title}>
-      <div className="px-screen pt-2">
+    <Dialog open={open} onClose={onClose} title={title} size="sm">
+      <div className="px-screen pt-2 desktop:px-0 desktop:pt-0">
         {message ? <p className="text-bodysm text-ink-muted">{message}</p> : null}
-        <div className="mt-5 flex flex-col gap-2">
+        <div className="mt-5 flex flex-col gap-2 desktop:flex-row-reverse">
           <Button
             variant="danger"
             fullWidth
@@ -43,6 +43,6 @@ export default function ConfirmSheet({
           </Button>
         </div>
       </div>
-    </BottomSheet>
+    </Dialog>
   );
 }

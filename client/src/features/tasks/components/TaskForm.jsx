@@ -4,7 +4,7 @@ import {
   DateTimeRow,
   FilePickerRow,
   FormRow,
-  OptionSheet,
+  OptionPicker,
   TextAreaField,
   TextField,
 } from '@/shared/components';
@@ -38,8 +38,8 @@ export default function TaskForm({
   onAttachmentChange,
 }) {
   const { user, isManager } = useCurrentUser();
-  const prioritySheet = useDisclosure();
-  const assigneeSheet = useDisclosure();
+  const priorityPicker = useDisclosure();
+  const assigneePicker = useDisclosure();
 
   const { users } = useUsers({ role: 'user' }, { enabled: isManager });
 
@@ -105,7 +105,7 @@ export default function TaskForm({
           label={form.priority}
           value={PRIORITY_META[values.priority].label}
           icon={<Flag size={18} />}
-          onClick={prioritySheet.show}
+          onClick={priorityPicker.show}
         />
 
         {isManager ? (
@@ -113,7 +113,7 @@ export default function TaskForm({
             label={form.assignee}
             value={selectedAssignee?.label}
             icon={<UserRound size={18} />}
-            onClick={assigneeSheet.show}
+            onClick={assigneePicker.show}
             error={errors.assignee_id}
           />
         ) : null}
@@ -128,18 +128,18 @@ export default function TaskForm({
         ) : null}
       </Card>
 
-      <OptionSheet
-        open={prioritySheet.open}
-        onClose={prioritySheet.hide}
+      <OptionPicker
+        open={priorityPicker.open}
+        onClose={priorityPicker.hide}
         title={form.priority}
         options={[...PRIORITY_OPTIONS]}
         value={values.priority}
         onSelect={(value) => setField('priority', value)}
       />
 
-      <OptionSheet
-        open={assigneeSheet.open}
-        onClose={assigneeSheet.hide}
+      <OptionPicker
+        open={assigneePicker.open}
+        onClose={assigneePicker.hide}
         title={form.assignee}
         options={assigneeOptions}
         value={values.assignee_id}

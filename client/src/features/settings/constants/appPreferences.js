@@ -29,3 +29,4 @@ export const REMINDER_HOUR_OPTIONS = /** @type {const} */ ([
 
 /** Key of the reminder setting in the settings API. */
 export const REMINDER_SETTING_KEY = 'reminder_before_hours';
+

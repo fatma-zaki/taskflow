@@ -3,10 +3,8 @@ import { AtSign, UserRound } from 'lucide-react';
 import { ROUTES } from '@/app/navigation/routes.js';
 import { Avatar, Badge, Button, Card, Screen, ScreenHeader, TextField } from '@/shared/components';
 import { useCurrentUser } from '@/features/auth';
+import { ROLE_LABELS } from '@/shared/constants/roles.js';
 import { useProfileForm } from '../hooks/useProfileForm.js';
-
-/** @type {Record<import('@/shared/types').UserRole, string>} */
-const ROLE_LABELS = { admin: 'Admin', manager: 'Manager', user: 'Member' };
 
 /**
  * Edit your own name and email.

@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { BottomSheet, Button, Card, OptionSheet, FormRow, TextField } from '@/shared/components';
+import { Dialog, Button, Card, OptionPicker, FormRow, TextField } from '@/shared/components';
 import { useDisclosure } from '@/shared/hooks';
 import { isValid, validateEmail, validateName, validatePassword } from '@/shared/utils/validation.js';
+import { ROLE_OPTIONS } from '@/shared/constants/roles.js';
+import { useCurrentUser } from '@/features/auth';
 import { useCreateUser } from '../hooks/useUserMutations.js';
-
-const ROLE_OPTIONS = /** @type {const} */ ([
-  { value: 'user', label: 'Member', description: 'Works on assigned tasks' },
-  { value: 'manager', label: 'Manager', description: 'Assigns and oversees work' },
-]);
 
 /**
  * Add a team member without leaving the list.
@@ -16,8 +13,12 @@ const ROLE_OPTIONS = /** @type {const} */ ([
  * @param {boolean} props.open
  * @param {() => void} props.onClose
  */
-export default function CreateUserSheet({ open, onClose }) {
+export default function CreateUserDialog({ open, onClose }) {
   const rolePicker = useDisclosure();
+  const { isAdmin } = useCurrentUser();
+
+  /** Only admins may create another admin, matching the server's rules. */
+  const roleOptions = ROLE_OPTIONS.filter((option) => option.value !== 'admin' || isAdmin);
   const [values, setValues] = useState({ name: '', email: '', password: '', role: 'user' });
   const [errors, setErrors] = useState(
     /** @type {{ name: string | null, email: string | null, password: string | null }} */ ({
@@ -51,8 +52,8 @@ export default function CreateUserSheet({ open, onClose }) {
   };
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Add a team member">
-      <div className="px-screen pt-3">
+    <Dialog open={open} onClose={onClose} title="Add a team member">
+      <div className="px-screen pt-3 desktop:px-0 desktop:pt-0">
         <Card padding="none" className="divide-y divide-line">
           <TextField
             name="new-user-name"
@@ -82,7 +83,7 @@ export default function CreateUserSheet({ open, onClose }) {
           />
           <FormRow
             label="Role"
-            value={ROLE_OPTIONS.find((option) => option.value === values.role)?.label}
+            value={roleOptions.find((option) => option.value === values.role)?.label}
             onClick={rolePicker.show}
           />
         </Card>
@@ -92,14 +93,14 @@ export default function CreateUserSheet({ open, onClose }) {
         </Button>
       </div>
 
-      <OptionSheet
+      <OptionPicker
         open={rolePicker.open}
         onClose={rolePicker.hide}
         title="Role"
-        options={[...ROLE_OPTIONS]}
+        options={[...roleOptions]}
         value={values.role}
         onSelect={(value) => setField('role', value)}
       />
-    </BottomSheet>
+    </Dialog>
   );
 }

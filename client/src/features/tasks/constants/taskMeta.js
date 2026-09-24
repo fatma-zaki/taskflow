@@ -61,5 +61,12 @@ export const TASK_FILTERS = [
   { value: 'completed', label: 'Completed' },
 ];
 
+/** Statuses a person can move a task to by hand; "overdue" is derived. */
+export const SELECTABLE_STATUSES = /** @type {TaskStatus[]} */ ([
+  TASK_STATUS.UPCOMING,
+  TASK_STATUS.IN_PROGRESS,
+  TASK_STATUS.COMPLETED,
+]);
+
 /** How many tasks a screen pulls when it needs the full working set. */
 export const TASK_PAGE_SIZE = 100;

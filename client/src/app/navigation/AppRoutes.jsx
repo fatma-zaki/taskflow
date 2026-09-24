@@ -1,93 +1,52 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { LoginScreen, ProtectedRoute } from '@/features/auth';
-import { HomeScreen, MyDayScreen } from '@/features/dashboard';
-import { CalendarScreen } from '@/features/calendar';
-import { CategoriesScreen } from '@/features/categories';
-import { ActivityScreen } from '@/features/activity';
-import { CreateTaskScreen, EditTaskScreen, TaskDetailScreen, TasksScreen } from '@/features/tasks';
-import {
-  AboutScreen,
-  MoreScreen,
-  NotificationRulesScreen,
-  ProfileScreen,
-  SettingsScreen,
-} from '@/features/settings';
-import { EditUserScreen, UsersScreen } from '@/features/users';
-import { ROUTES, ROUTE_PATTERNS } from './routes.js';
-import TabLayout from './TabLayout.jsx';
-import FocusLayout from './FocusLayout.jsx';
+import { ProtectedRoute } from '@/features/auth';
+import { ROUTES } from './routes.js';
+import { APP_ROUTES, LEGACY_REDIRECTS, LOGIN_ROUTE } from './routeTable.jsx';
+import { PlatformLayout, PlatformView, PublicLayout } from './PlatformRoute.jsx';
 
 /**
- * The app's route table.
- *
- * Two layouts decide the shape of a screen: `TabLayout` keeps the bottom
- * navigation on screen, `FocusLayout` hands the whole height to one task.
+ * The router. Every destination comes from `routeTable.jsx`, so adding a screen
+ * is one entry there and nothing here.
  */
 export default function AppRoutes() {
+  /** @param {import('./routeTable.jsx').MobileLayout} layout */
+  const routesFor = (layout) => APP_ROUTES.filter((route) => route.mobileLayout === layout);
+
   return (
     <Routes>
-      {/* Public */}
-      <Route element={<FocusLayout />}>
-        <Route path={ROUTES.login} element={<LoginScreen />} />
+      <Route element={<PublicLayout />}>
+        <Route path={LOGIN_ROUTE.path} element={<PlatformView route={LOGIN_ROUTE} />} />
       </Route>
 
-      {/* Primary destinations, with navigation */}
+      {/* Primary destinations: the phone keeps its bottom navigation here. */}
       <Route
         element={
           <ProtectedRoute>
-            <TabLayout />
+            <PlatformLayout mobileLayout="tab" />
           </ProtectedRoute>
         }
       >
-        <Route path={ROUTES.home} element={<HomeScreen />} />
-        <Route path={ROUTES.calendar} element={<CalendarScreen />} />
-        <Route path={ROUTES.tasks} element={<TasksScreen />} />
-        <Route path={ROUTES.categories} element={<CategoriesScreen />} />
-        <Route path={ROUTES.more} element={<MoreScreen />} />
-        <Route path={ROUTES.myDay} element={<MyDayScreen />} />
-        <Route path={ROUTES.activity} element={<ActivityScreen />} />
-        <Route path={ROUTES.settings} element={<SettingsScreen />} />
-        <Route
-          path={ROUTES.users}
-          element={
-            <ProtectedRoute requireManager>
-              <UsersScreen />
-            </ProtectedRoute>
-          }
-        />
+        {routesFor('tab').map((route) => (
+          <Route key={route.path} path={route.path} element={<PlatformView route={route} />} />
+        ))}
       </Route>
 
-      {/* Focused screens: forms and detail views */}
+      {/* Forms and detail views: the phone gives them the full height. */}
       <Route
         element={
           <ProtectedRoute>
-            <FocusLayout />
+            <PlatformLayout mobileLayout="focus" />
           </ProtectedRoute>
         }
       >
-        <Route path={ROUTES.taskNew} element={<CreateTaskScreen />} />
-        <Route path={ROUTE_PATTERNS.taskDetail} element={<TaskDetailScreen />} />
-        <Route path={ROUTE_PATTERNS.taskEdit} element={<EditTaskScreen />} />
-        <Route path={ROUTES.profile} element={<ProfileScreen />} />
-        <Route path={ROUTES.about} element={<AboutScreen />} />
-        <Route path={ROUTES.notificationRules} element={<NotificationRulesScreen />} />
-        <Route
-          path={ROUTE_PATTERNS.userEdit}
-          element={
-            <ProtectedRoute requireManager>
-              <EditUserScreen />
-            </ProtectedRoute>
-          }
-        />
+        {routesFor('focus').map((route) => (
+          <Route key={route.path} path={route.path} element={<PlatformView route={route} />} />
+        ))}
       </Route>
 
-      {/* Entry point and paths kept from the previous web app */}
-      <Route path="/" element={<Navigate to={ROUTES.home} replace />} />
-      <Route path="/dashboard" element={<Navigate to={ROUTES.home} replace />} />
-      <Route path="/tasks/create" element={<Navigate to={ROUTES.taskNew} replace />} />
-      <Route path="/notifications" element={<Navigate to={ROUTES.activity} replace />} />
-      <Route path="/profile" element={<Navigate to={ROUTES.profile} replace />} />
-      <Route path="/admin/notification-settings" element={<Navigate to={ROUTES.notificationRules} replace />} />
+      {LEGACY_REDIRECTS.map(({ from, to }) => (
+        <Route key={from} path={from} element={<Navigate to={to} replace />} />
+      ))}
       <Route path="*" element={<Navigate to={ROUTES.home} replace />} />
     </Routes>
   );

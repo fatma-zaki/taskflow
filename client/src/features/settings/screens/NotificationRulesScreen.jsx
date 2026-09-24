@@ -8,7 +8,7 @@ import {
   FormRow,
   IconBadge,
   ListRow,
-  OptionSheet,
+  OptionPicker,
   RowGroup,
   Screen,
   ScreenHeader,
@@ -104,7 +104,7 @@ export default function NotificationRulesScreen() {
         </>
       )}
 
-      <OptionSheet
+      <OptionPicker
         open={picker.open}
         onClose={picker.hide}
         title="Reminder schedule"
