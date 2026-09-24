@@ -67,6 +67,8 @@ export const radius = {
  * [fontSize, { lineHeight, letterSpacing, fontWeight }]
  */
 export const fontSize = {
+  /** Marketing-scale headline, used on the web sign-in page only. */
+  jumbo: ['56px', { lineHeight: '62px', letterSpacing: '-0.03em', fontWeight: '800' }],
   hero: ['40px', { lineHeight: '46px', letterSpacing: '-0.025em', fontWeight: '700' }],
   display: ['26px', { lineHeight: '32px', letterSpacing: '-0.02em', fontWeight: '700' }],
   title: ['22px', { lineHeight: '28px', letterSpacing: '-0.015em', fontWeight: '700' }],
