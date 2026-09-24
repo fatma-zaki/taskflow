@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import { AppError } from '../utils/errorHandler.js';
 
 // Files are held in memory, then handed to storageService (Vercel Blob or local disk).
 // Nothing is written at import time: Vercel's filesystem is read-only, so creating an
@@ -15,7 +16,7 @@ const fileFilter = (req, file, cb) => {
   if (allowedTypes.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new Error(`File type .${ext} is not allowed`), false);
+    cb(new AppError(`File type .${ext} is not allowed. Allowed: ${allowedTypes.join(', ')}`, 400), false);
   }
 };
 

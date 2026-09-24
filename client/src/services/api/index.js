@@ -2,7 +2,7 @@
  * Data access layer. Features import endpoints from here — nothing outside this
  * folder imports axios, knows the base URL, or unwraps a response envelope.
  */
-export { default as client, registerUnauthorizedHandler, apiErrorMessage, unwrap } from './client.js';
+export { default as client, registerUnauthorizedHandler, apiErrorMessage, blobApiErrorMessage, unwrap } from './client.js';
 export { API_BASE_URL, STORAGE_KEYS } from './config.js';
 export { queryKeys } from './queryKeys.js';
 export { authApi } from './endpoints/auth.js';

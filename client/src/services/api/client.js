@@ -54,8 +54,34 @@ export const unwrap = (response) => response.data.data;
  * @returns {string} A message safe to show the user.
  */
 export function apiErrorMessage(error, fallback) {
-  const response = /** @type {{ response?: { data?: { message?: string } } }} */ (error)?.response;
-  return response?.data?.message || fallback;
+  const response = /** @type {{ response?: { status?: number, data?: { message?: string, error?: string } } }} */ (
+    error
+  )?.response;
+  const message = response?.data?.message || response?.data?.error;
+  if (message) return message;
+  // Vercel rejects bodies over 4.5 MB itself, before the API sees them, with no JSON body
+  if (response?.status === 413) return 'The file is too large to upload';
+  return fallback;
+}
+
+/**
+ * Requests made with `responseType: 'blob'` receive their error bodies as a Blob too,
+ * so the server's message is hidden. This turns that Blob back into JSON first.
+ *
+ * @param {unknown} error
+ * @param {string} fallback
+ * @returns {Promise<string>}
+ */
+export async function blobApiErrorMessage(error, fallback) {
+  const response = /** @type {{ response?: { data?: unknown } }} */ (error)?.response;
+  if (response?.data instanceof Blob) {
+    try {
+      response.data = JSON.parse(await response.data.text());
+    } catch {
+      // Not JSON: fall through to the generic message
+    }
+  }
+  return apiErrorMessage(error, fallback);
 }
 
 export default client;

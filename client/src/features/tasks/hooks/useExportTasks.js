@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { apiErrorMessage, exportsApi } from '@/services/api';
+import { blobApiErrorMessage, exportsApi } from '@/services/api';
 import { downloadBlob } from '@/shared/utils/file.js';
 import { dayKey } from '@/shared/utils/date.js';
 
@@ -19,7 +19,7 @@ export function useExportTasks() {
       const blob = await exportsApi.tasksCsv(params);
       downloadBlob(blob, `taskflow-tasks-${dayKey(new Date())}.csv`);
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Could not export the tasks'));
+      toast.error(await blobApiErrorMessage(error, 'Could not export the tasks'));
     } finally {
       setExporting(false);
     }

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { ROUTES } from '@/app/navigation/routes.js';
-import { tasksApi } from '@/services/api';
+import { blobApiErrorMessage, tasksApi } from '@/services/api';
 import { downloadBlob } from '@/shared/utils/file.js';
 import { useCurrentUser } from '@/features/auth';
 import { taskCopy } from '../constants/taskCopy.js';
@@ -62,8 +62,8 @@ export function useTaskDetail(id) {
       try {
         const blob = await tasksApi.downloadAttachment(id, attachment._id);
         downloadBlob(blob, attachment.originalname);
-      } catch {
-        toast.error(taskCopy.feedback.downloadFailed);
+      } catch (error) {
+        toast.error(await blobApiErrorMessage(error, taskCopy.feedback.downloadFailed));
       }
     },
     deleteTask: () => remove(id),

@@ -12,6 +12,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { AppError } from '../utils/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +40,15 @@ export const saveUpload = async (file) => {
       addRandomSuffix: false,
     });
     return { key: blob.pathname, location: blob.url };
+  }
+
+  // Vercel sets VERCEL=1. Its disk is read-only, so without a Blob store the write below
+  // would fail with an opaque EROFS error.
+  if (process.env.VERCEL) {
+    throw new AppError(
+      'File storage is not configured on the server. Connect a Vercel Blob store to the API project (it sets BLOB_READ_WRITE_TOKEN) and redeploy.',
+      503
+    );
   }
 
   if (!fs.existsSync(uploadDir)) {

@@ -130,8 +130,9 @@ export const exportTasksCSV = asyncHandler(async (req, res) => {
     ]);
   });
 
+  // The first row of csvData is already the header, so csv-stringify's own `header`
+  // option must stay off: with array rows it throws "Undiscoverable Columns".
   const csv = stringify(csvData, {
-    header: true,
     quoted: true,
     quoted_empty: true,
   });
