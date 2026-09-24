@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { Spinner } from '@/shared/components';
+import { LoadingScreen } from '@/shared/components';
 import { useAppSelector } from '@/app/store/hooks.js';
 import { ROUTES } from '@/app/navigation/routes.js';
 import { selectAuthLoading, selectIsManager, selectUser } from '../store/authSlice.js';
@@ -18,11 +18,7 @@ export default function ProtectedRoute({ children, requireManager = false }) {
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!user) {

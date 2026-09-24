@@ -90,6 +90,17 @@ export default {
           '0%': { backgroundColor: colors.primary.tint },
           '100%': { backgroundColor: 'transparent' },
         },
+        'word-bounce': {
+          '0%': { opacity: '0', transform: 'translateY(28px) scale(0.85)' },
+          '55%': { opacity: '1', transform: 'translateY(-10px) scale(1.04)' },
+          '75%': { transform: 'translateY(4px) scale(0.99)' },
+          '90%': { transform: 'translateY(-2px)' },
+          '100%': { opacity: '1', transform: 'none' },
+        },
+        'dot-bounce': {
+          '0%, 80%, 100%': { transform: 'translateY(0)', opacity: '0.4' },
+          '40%': { transform: 'translateY(-8px)', opacity: '1' },
+        },
       },
       animation: {
         'screen-in': `screen-in ${motion.base}ms ${motion.easeOut} both`,
@@ -97,6 +108,8 @@ export default {
         'fade-in': `fade-in ${motion.fast}ms ${motion.easeOut} both`,
         'check-pop': `check-pop ${motion.base}ms ${motion.spring} both`,
         'row-complete': `row-complete 600ms ${motion.easeOut} both`,
+        'word-bounce': `word-bounce 650ms ${motion.easeOut} both`,
+        'dot-bounce': 'dot-bounce 1.2s ease-in-out infinite',
       },
     },
   },
