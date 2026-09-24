@@ -102,11 +102,11 @@ export default function LoginPage() {
         />
       </svg>
 
-      <div className="relative flex min-h-screen gap-10 px-6 py-10 desktop:px-[100px] desktop:py-14">
+      <div className="relative flex min-h-screen gap-10 px-6 py-10 desktop:px-12 desktop:py-14 min-[1760px]:px-[100px]">
         <aside className="hidden min-w-0 flex-1 flex-col pt-5 desktop:flex">
           <BrandLogo size="xl" />
 
-          <div className="mt-8 flex items-center gap-6">
+          <div className="mt-8 flex items-center gap-2">
             <div className="shrink-0">
               <h2 className="text-jumbo text-ink">
                 Small tasks.
@@ -140,12 +140,12 @@ export default function LoginPage() {
               alt=""
               aria-hidden="true"
               draggable="false"
-              className="hidden min-w-0 max-w-[500px] flex-1 select-none object-contain xl:block"
+              className="hidden w-0 min-w-[340px] max-w-[520px] flex-1 select-none object-contain xl:block"
             />
           </div>
         </aside>
 
-        <main className="m-auto w-full max-w-[640px] shrink-0 rounded-xl bg-surface p-8 shadow-card sm:px-14 sm:py-10 desktop:m-0 desktop:self-center">
+        <main className="m-auto w-full max-w-[640px] shrink-0 rounded-xl bg-surface p-8 shadow-card sm:px-14 sm:py-10 desktop:m-0 desktop:w-[480px] desktop:self-center desktop:px-10 2xl:w-[560px] 2xl:px-14 min-[1760px]:w-[640px]">
           <BrandLogo size="xl" />
 
           <h1 className="mt-10 text-hero font-extrabold text-ink">Welcome back</h1>
