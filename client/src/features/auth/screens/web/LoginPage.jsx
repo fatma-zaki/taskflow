@@ -5,6 +5,7 @@ import { BrandLogo, Button, IconBadge, InputField } from '@/shared/components';
 import { useAppSelector } from '@/app/store/hooks.js';
 import { selectUser } from '../../store/authSlice.js';
 import { useLoginForm } from '../../hooks/useLoginForm.js';
+import DemoAccounts from '../../components/DemoAccounts.jsx';
 
 const HIGHLIGHTS = [
   { id: 'plan', icon: CheckSquare, tone: /** @type {const} */ ('primary'), text: 'Plan the day in one place' },
@@ -18,7 +19,7 @@ const HIGHLIGHTS = [
 export default function LoginPage() {
   const location = useLocation();
   const user = useAppSelector(selectUser);
-  const { values, errors, setField, submit, isSubmitting, serverError } = useLoginForm();
+  const { values, errors, setField, fill, submit, isSubmitting, serverError } = useLoginForm();
 
   if (user) {
     const from = /** @type {{ from?: string } | null} */ (location.state)?.from;
@@ -104,6 +105,8 @@ export default function LoginPage() {
               <ArrowRight size={18} />
             </Button>
           </form>
+
+          <DemoAccounts onSelect={fill} className="mt-6" />
         </div>
       </main>
     </div>

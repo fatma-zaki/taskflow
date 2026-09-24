@@ -5,6 +5,7 @@ import { BrandLogo, Button, Card, Screen, TextField } from '@/shared/components'
 import { useAppSelector } from '@/app/store/hooks.js';
 import { selectUser } from '../store/authSlice.js';
 import { useLoginForm } from '../hooks/useLoginForm.js';
+import DemoAccounts from '../components/DemoAccounts.jsx';
 
 /**
  * Sign in on a phone: one card, big targets, a single primary action.
@@ -12,7 +13,7 @@ import { useLoginForm } from '../hooks/useLoginForm.js';
 export default function LoginScreen() {
   const location = useLocation();
   const user = useAppSelector(selectUser);
-  const { values, errors, setField, submit, isSubmitting, serverError } = useLoginForm();
+  const { values, errors, setField, fill, submit, isSubmitting, serverError } = useLoginForm();
 
   if (user) {
     const from = /** @type {{ from?: string } | null} */ (location.state)?.from;
@@ -63,6 +64,8 @@ export default function LoginScreen() {
       {serverError ? (
         <p className="mt-4 rounded-card bg-danger-soft px-4 py-3 text-sub text-danger">{serverError}</p>
       ) : null}
+
+      <DemoAccounts onSelect={fill} className="mt-6" />
     </Screen>
   );
 }
